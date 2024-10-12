@@ -13,10 +13,9 @@ export class PostgresUsersRepository implements IUsersRepository {
 			);
 
 			if (res.rows.length === 0) {
-				return null; // caso não encontre o usuário
+				return null;
 			}
 
-			// Transforme o resultado em uma instância de User
 			const row = res.rows[0];
 			const user = new User(row.email, row.password);
 
@@ -39,6 +38,32 @@ export class PostgresUsersRepository implements IUsersRepository {
 			);
 		} catch (error) {
 			console.error("Erro ao salvar o usuário:", error);
+			throw error;
+		} finally {
+			await client.end();
+		}
+	}
+
+	async update(user: User): Promise<User> {
+		const client = await connectToDatabase();
+
+		try {
+			const res = await client.query(
+				"UPDATE users SET name = $1, email = $2, password = $3 WHERE id = $4 RETURNING name, email, password",
+				[user.name, user.email, user.password, user.id]
+			);
+
+			if (res.rows.length === 0) {
+				throw new Error("User not found.");
+			}
+
+			const updatedRow = res.rows[0];
+			const updatedUser = new User(updatedRow.email, updatedRow.password);
+			updatedUser.name = updatedRow.name;
+
+			return updatedUser;
+		} catch (error) {
+			console.error("Erro ao atualizar o usuário:", error);
 			throw error;
 		} finally {
 			await client.end();
