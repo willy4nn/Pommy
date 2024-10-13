@@ -69,4 +69,26 @@ export class PostgresUsersRepository implements IUsersRepository {
 			await client.end();
 		}
 	}
+
+	async delete(id: string): Promise<void | null> {
+		const client = await connectToDatabase();
+
+		console.log(id);
+		
+
+		try {
+			const res = await client.query("DELETE FROM users WHERE id = $1", [
+				id,
+			]);
+
+			if (res.rowCount === 0) {
+				throw new Error("User not found.");
+			}
+		} catch (error) {
+			console.error("Erro ao deletar o usuário:", error);
+			throw error;
+		} finally {
+			await client.end();
+		}
+	}
 }

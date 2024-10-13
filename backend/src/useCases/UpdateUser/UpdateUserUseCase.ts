@@ -12,8 +12,6 @@ export class UpdateUserUseCase {
 			throw new Error("User does not exist");
 		}
 
-		console.log(userExists);
-
 		const user = new User(data);
 
 		await this.usersRepository.update(user);
