@@ -5,11 +5,10 @@ export class DeleteUserController {
 	constructor(private deleteUserUseCase: DeleteUserUseCase) {}
 
 	async handle(request: Request, response: Response): Promise<Response> {
-		const { email, id } = request.body;
+		const { id } = request.params;
 
 		try {
 			await this.deleteUserUseCase.execute({
-				email,
 				id,
 			});
 

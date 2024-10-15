@@ -5,15 +5,20 @@ import { ICreateUserRequestDTO } from "../CreateUser/CreateUserDTO";
 export class UpdateUserUseCase {
 	constructor(private usersRepository: IUsersRepository) {}
 
-	async execute(data: ICreateUserRequestDTO) {
-		const userExists = await this.usersRepository.findByEmail(data.email);
+	async execute(id: string, data: ICreateUserRequestDTO) {
+		const userExists = await this.usersRepository.findById(id);
 
 		if (!userExists) {
 			throw new Error("User does not exist");
 		}
 
-		const user = new User(data);
+		const updatedUser = {
+			...userExists,
+			...(data.name && { name: data.name }),
+			...(data.email && { email: data.email }),
+			...(data.password && { password: data.password }),
+		};
 
-		await this.usersRepository.update(user);
+		await this.usersRepository.update(updatedUser);
 	}
 }

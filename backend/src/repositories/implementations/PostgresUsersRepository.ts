@@ -17,11 +17,47 @@ export class PostgresUsersRepository implements IUsersRepository {
 			}
 
 			const row = res.rows[0];
-			const user = new User(row.email, row.password);
+
+			const user: User = {
+				email: row.email,
+				password: row.password,
+				name: row.name,
+				id: row.id,
+			};
 
 			return user;
 		} catch (error) {
 			console.error("Erro ao buscar o usuário:", error);
+			throw error;
+		} finally {
+			await client.end();
+		}
+	}
+
+	async findById(id: string): Promise<User | null> {
+		const client = await connectToDatabase();
+
+		try {
+			const res = await client.query(
+				"SELECT * FROM users WHERE id = $1 LIMIT 1",
+				[id]
+			);
+
+			if (res.rows.length === 0) {
+				return null;
+			}
+
+			const row = res.rows[0];
+			const user: User = {
+				id: row.id,
+				email: row.email,
+				password: row.password,
+				name: row.name,
+			};
+
+			return user;
+		} catch (error) {
+			console.error("Erro ao buscar o usuário por ID:", error);
 			throw error;
 		} finally {
 			await client.end();
@@ -47,9 +83,11 @@ export class PostgresUsersRepository implements IUsersRepository {
 	async update(user: User): Promise<User> {
 		const client = await connectToDatabase();
 
+		console.log("Olha o usuário aqui:", user);
+
 		try {
 			const res = await client.query(
-				"UPDATE users SET name = $1, email = $2, password = $3 WHERE id = $4 RETURNING name, email, password",
+				"UPDATE users SET name = $1, email = $2, password = $3 WHERE id = $4 RETURNING id, name, email, password",
 				[user.name, user.email, user.password, user.id]
 			);
 
@@ -58,8 +96,12 @@ export class PostgresUsersRepository implements IUsersRepository {
 			}
 
 			const updatedRow = res.rows[0];
-			const updatedUser = new User(updatedRow.email, updatedRow.password);
-			updatedUser.name = updatedRow.name;
+			const updatedUser: User = {
+				id: updatedRow.id,
+				name: updatedRow.name,
+				email: updatedRow.email,
+				password: updatedRow.password,
+			};
 
 			return updatedUser;
 		} catch (error) {
@@ -72,9 +114,6 @@ export class PostgresUsersRepository implements IUsersRepository {
 
 	async delete(id: string): Promise<void | null> {
 		const client = await connectToDatabase();
-
-		console.log(id);
-		
 
 		try {
 			const res = await client.query("DELETE FROM users WHERE id = $1", [

@@ -2,6 +2,7 @@ import { IUsersRepository } from "../../repositories/IUsersRepository";
 import { ICreateUserRequestDTO } from "./CreateUserDTO";
 import { User } from "../../entities/User";
 import { IMailProvider } from "../../providers/IMailProvider";
+import { hashPassword } from '../../utils/passwordUtils'
 
 export class CreateUserUseCase {
 	constructor(
@@ -15,10 +16,15 @@ export class CreateUserUseCase {
 		);
 
 		if (userAlreadyExists) {
-			throw new Error("User already exists. ");
+			throw new Error("User already exists.");
 		}
 
-		const user = new User(data);
+		const hashedPassword = await hashPassword(data.password);
+
+		const user = new User({
+			...data,
+			password: hashedPassword,
+		});
 
 		await this.usersRepository.save(user);
 
