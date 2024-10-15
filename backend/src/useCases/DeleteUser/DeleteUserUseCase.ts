@@ -5,7 +5,7 @@ export class DeleteUserUseCase {
 	constructor(private usersRepository: IUsersRepository) {}
 
 	async execute(data: IDeleteUserRequestDTO) {
-		const user = await this.usersRepository.findByEmail(data.email);
+		const user = await this.usersRepository.findById(data.id);
 
 		if (!user) {
 			throw new Error("User does not exist");
