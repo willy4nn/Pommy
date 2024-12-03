@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { CreateUserUseCase } from "./CreateUserUseCase";
 import { ICreateUserResponseDTO } from "./CreateUserDTO";
 import { ApiResponse } from "../../../helpers/ApiResponse";
@@ -8,7 +8,8 @@ export class CreateUserController {
 
 	async handle(
 		request: Request,
-		response: Response
+		response: Response,
+		next: NextFunction
 	): Promise<Response<ApiResponse<ICreateUserResponseDTO>>> {
 		// Extract user data from the request body
 		const { name, email, password } = request.body;
@@ -29,13 +30,7 @@ export class CreateUserController {
 			// Return the created user data with a 201 (Created) status code
 			return response.status(201).json(responseBody);
 		} catch (err) {
-			const responseBody = ApiResponse.error(
-				500,
-				err.message || "An unexpected error occurred",
-				err.name || "Error"
-			);
-
-			return response.status(500).json(responseBody);
+			next(err);
 		}
 	}
 }

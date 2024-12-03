@@ -1,7 +1,9 @@
 import { User } from "../../../entities/User";
+import { CustomError, ErrorCatalog } from "../../../errors/CustomError";
 import { IUsersRepository } from "../../../repositories/IUsersRepository";
 import { ICreateUserRequestDTO, ICreateUserResponseDTO } from "./CreateUserDTO";
 import bcrypt from "bcryptjs";
+import { createUserValidator } from "./CreateUserValidator";
 
 export class CreateUserUseCase {
 	constructor(private usersRepository: IUsersRepository) {}
@@ -9,13 +11,18 @@ export class CreateUserUseCase {
 	async execute(
 		data: ICreateUserRequestDTO
 	): Promise<ICreateUserResponseDTO> {
+		// Calls the function to validate user creation data
+		createUserValidator(data);
+
 		// Check if user already exists by email
 		const userAlreadyExists = await this.usersRepository.findByEmail(
 			data.email.toLowerCase()
 		);
 
 		if (userAlreadyExists) {
-			throw new Error("The user already exists");
+			throw new CustomError(
+				ErrorCatalog.ERROR.USER.SERVICE.USER_ALREADY_EXISTS
+			);
 		}
 
 		// Clean up name and email

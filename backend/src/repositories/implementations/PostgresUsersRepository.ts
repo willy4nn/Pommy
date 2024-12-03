@@ -1,5 +1,6 @@
 import { pool } from "../../config/db";
 import { User } from "../../entities/User";
+import { CustomError, ErrorCatalog } from "../../errors/CustomError";
 import { IUsersRepository } from "../IUsersRepository";
 
 export class PostgresUsersRepository implements IUsersRepository {
@@ -28,8 +29,9 @@ export class PostgresUsersRepository implements IUsersRepository {
 			}
 			return null;
 		} catch (error) {
-			throw new Error(
-				`Error fetching user from the database: ${error.message}`
+			throw new CustomError(
+				ErrorCatalog.ERROR.USER.REPOSITORY.QUERY_FAILED,
+				error.message
 			);
 		} finally {
 			client.release(); // Release the client
@@ -45,8 +47,9 @@ export class PostgresUsersRepository implements IUsersRepository {
 				[user.id, user.name, user.email, user.password, user.createdAt]
 			);
 		} catch (error) {
-			throw new Error(
-				`Failed to save the user in the database: ${error.message}`
+			throw new CustomError(
+				ErrorCatalog.ERROR.USER.REPOSITORY.USER_SAVE_FAILED,
+				error.message
 			);
 		} finally {
 			client.release(); // Release the client
