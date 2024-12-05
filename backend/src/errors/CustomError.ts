@@ -10,6 +10,21 @@ class ErrorCatalog {
 	static ERROR = {
 		USER: {
 			VALIDATION: {
+				ID_REQUIRED: {
+					message: "User ID is required",
+					errorName: "ID_REQUIRED",
+					statusCode: 400,
+				},
+				ID_INVALID: {
+					message: "User ID is invalid",
+					errorName: "ID_INVALID",
+					statusCode: 400,
+				},
+				ID_INVALID_FORMAT: {
+					message: "User ID format is invalid",
+					errorName: "ID_INVALID_FORMAT",
+					statusCode: 400,
+				},
 				NAME_REQUIRED: {
 					message: "Name is required",
 					errorName: "NAME_REQUIRED",
@@ -119,6 +134,11 @@ class ErrorCatalog {
 					errorName: "QUERY_FAILED",
 					statusCode: 500,
 				},
+				USER_UPDATE_FAILED: {
+					message: "Failed to update user",
+					errorName: "USER_UPDATE_FAILED",
+					statusCode: 500,
+				},
 			},
 			PERMISSION: {
 				UNAUTHORIZED: {
@@ -137,6 +157,11 @@ class ErrorCatalog {
 					message: "User already exists",
 					errorName: "USER_ALREADY_EXISTS",
 					statusCode: 409,
+				},
+				USER_NOT_FOUND: {
+					message: "User does not exist",
+					errorName: "USER_NOT_FOUND",
+					statusCode: 404,
 				},
 				INVALID_USER_STATUS: {
 					message: "Invalid user status",
