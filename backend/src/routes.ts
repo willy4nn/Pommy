@@ -10,7 +10,7 @@ router.post("/users", (request, response, next) => {
 });
 
 // PUT route to update a user
-router.put("/users", (request, response, next) => {
+router.put("/users/:id", (request, response, next) => {
 	return updateUserController.handle(request, response, next);
 });
 
