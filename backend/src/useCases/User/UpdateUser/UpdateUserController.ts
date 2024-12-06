@@ -11,8 +11,11 @@ export class UpdateUserController {
 		response: Response,
 		next: NextFunction
 	): Promise<Response<ApiResponse<IUpdateUserResponseDTO>>> {
+		// Get the id from the URL params
+		const { id } = request.params;
+
 		// Extract user data from the request body
-		const { id, name, email, password } = request.body;
+		const { name, email, password } = request.body;
 
 		try {
 			// Execute the use case to update an existing user
