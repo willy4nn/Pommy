@@ -3,15 +3,11 @@ import { generateToken } from "../../../helpers/generateToken";
 import { IUsersRepository } from "../../../repositories/IUsersRepository";
 import { ILoginUserRequestDTO } from "./LoginUserDTO";
 import bcrypt from "bcryptjs";
-import { loginUserValidator } from "./LoginUserValidator";
 
 export class LoginUserUseCase {
 	constructor(private usersRepository: IUsersRepository) {}
 
 	async execute(data: ILoginUserRequestDTO) {
-		// Validate the user data before processing
-		loginUserValidator(data);
-
 		// Check if the user exists by email
 		const userExists = await this.usersRepository.findByEmail(data.email);
 
