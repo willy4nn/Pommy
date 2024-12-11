@@ -3,22 +3,35 @@ import { generateToken } from "../../../helpers/generateToken";
 import { IUsersRepository } from "../../../repositories/IUsersRepository";
 import { ILoginUserRequestDTO } from "./LoginUserDTO";
 import bcrypt from "bcryptjs";
-import { loginUserValidator } from "./LoginUserValidator";
 
 export class LoginUserUseCase {
 	constructor(private usersRepository: IUsersRepository) {}
 
 	async execute(data: ILoginUserRequestDTO) {
-		// Validate the user data before processing
-		loginUserValidator(data);
+		// Check if the email was provided
+		if (!data.email) {
+			throw new CustomError(
+				ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_CREDENTIALS
+			);
+		}
+
+		// Check if the password was provided
+		if (!data.password) {
+			throw new CustomError(
+				ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_CREDENTIALS
+			);
+		}
 
 		// Check if the user exists by email
 		const userExists = await this.usersRepository.findByEmail(data.email);
 
-		// If the user doesn't exist, throw a "User Not Found" error
+		// Add a small simulated delay to prevent timing attacks
+		await new Promise((resolve) => setTimeout(resolve, 500));
+
+		// If the user doesn't exist, throw an "Invalid Credentials" error
 		if (!userExists) {
 			throw new CustomError(
-				ErrorCatalog.ERROR.USER.SERVICE.USER_NOT_FOUND
+				ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_CREDENTIALS
 			);
 		}
 
@@ -28,10 +41,10 @@ export class LoginUserUseCase {
 			userExists.password
 		);
 
-		// If the password is invalid, throw an "Invalid Password" error
+		// If the password is invalid, throw an "Invalid Credentials" error
 		if (!isPasswordValid) {
 			throw new CustomError(
-				ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_PASSWORD
+				ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_CREDENTIALS
 			);
 		}
 
