@@ -112,6 +112,16 @@ class ErrorCatalog {
 					errorName: "INVALID_CREDENTIALS",
 					statusCode: 401,
 				},
+				INVALID_PASSWORD: {
+					message: "Invalid password",
+					errorName: "INVALID_PASSWORD",
+					statusCode: 401,
+				},
+				INVALID_USERNAME: {
+					message: "Invalid username",
+					errorName: "INVALID_USERNAME",
+					statusCode: 401,
+				},
 				USER_NOT_FOUND: {
 					message: "User not found",
 					errorName: "USER_NOT_FOUND",
