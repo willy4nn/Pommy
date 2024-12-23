@@ -6,13 +6,13 @@ export class DeleteUserController {
 	constructor(private deleteUserUseCase: DeleteUserUseCase) {}
 
 	async handle(request: Request, response: Response, next: NextFunction) {
-		// Get the id from the URL params
-		const { id } = request.params;
+		// Retrieve the user ID from the req.user object
+		const { userId } = request.user;
 
 		try {
 			// Execute the use case to delete an existing user
 			const deletedUserDTO = await this.deleteUserUseCase.execute({
-				id,
+				id: userId,
 			});
 
 			// Prepare the response body with success message
