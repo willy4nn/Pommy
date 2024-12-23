@@ -11,8 +11,8 @@ export class UpdateUserController {
 		response: Response,
 		next: NextFunction
 	): Promise<Response<ApiResponse<IUpdateUserResponseDTO>>> {
-		// Get the id from the URL params
-		const { id } = request.params;
+		// Retrieve the user ID from the req.user object
+		const { userId } = request.user;
 
 		// Extract user data from the request body
 		const { name, email, password } = request.body;
@@ -20,7 +20,7 @@ export class UpdateUserController {
 		try {
 			// Execute the use case to update an existing user
 			const updatedUserDTO = await this.updateUserUseCase.execute({
-				id,
+				id: userId,
 				name,
 				email,
 				password,
