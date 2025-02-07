@@ -1,13 +1,14 @@
 import { Request, Response } from "express";
 import { CreateUserUseCase } from "./CreateUserUseCase";
 import { ICreateUserResponseDTO } from "./CreateUserDTO";
+import { ApiResponse } from "../../../helpers/ApiResponse";
 
 export class CreateUserController {
 	constructor(private createUserUseCase: CreateUserUseCase) {}
 	async handle(
 		request: Request,
 		response: Response
-	): Promise<Response<ICreateUserResponseDTO>> {
+	): Promise<Response<ApiResponse<ICreateUserResponseDTO>>> {
 		const { name, email, password } = request.body;
 
 		try {
@@ -18,12 +19,21 @@ export class CreateUserController {
 				password,
 			});
 
+			const responseBody = ApiResponse.success(
+				createdUserDTO,
+				"User created successfully"
+			);
+
 			// Return the created user data with a 201 (Created) status code
-			return response.status(201).json(createdUserDTO);
+			return response.status(201).json(responseBody);
 		} catch (err) {
-			return response.status(500).json({
-				message: err.message || "An unexpected error occurred",
-			});
+			const responseBody = ApiResponse.error(
+				500,
+				err.message || "An unexpected error occurred",
+				err.name || "Error"
+			);
+
+			return response.status(500).json(responseBody);
 		}
 	}
 }
