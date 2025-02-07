@@ -1,10 +1,10 @@
-// CreateUserController.integration.test.ts
 import request from "supertest";
 import express from "express";
 import { CreateUserController } from "../CreateUserController";
 import { CreateUserUseCase } from "../CreateUserUseCase";
 import { PostgresUsersRepository } from "../../../../repositories/implementations/PostgresUsersRepository";
 import { pool } from "../../../../config/db";
+import { ApiResponse } from "../../../../helpers/ApiResponse";
 
 describe("Integration: CreateUserController with real database", () => {
 	let app: express.Express;
@@ -40,11 +40,21 @@ describe("Integration: CreateUserController with real database", () => {
 		const response = await request(app).post("/users").send(userData);
 
 		expect(response.status).toBe(201);
-		expect(response.body).toHaveProperty("id");
-		expect(response.body.name).toBe(userData.name);
-		expect(response.body.email).toBe(userData.email);
-		expect(response.body).toHaveProperty("created_at");
-		expect(response.body).toHaveProperty("updated_at");
+
+		// Verificar a estrutura da resposta padronizada
+		expect(response.body).toEqual(
+			expect.objectContaining({
+				status: "success",
+				message: "User created successfully",
+				data: expect.objectContaining({
+					id: expect.any(String),
+					name: userData.name,
+					email: userData.email,
+					created_at: expect.any(String),
+					updated_at: expect.any(String),
+				}),
+			})
+		);
 	});
 
 	it("should return 500 if the user already exists", async () => {
@@ -60,6 +70,10 @@ describe("Integration: CreateUserController with real database", () => {
 		const response = await request(app).post("/users").send(userData);
 
 		expect(response.status).toBe(500);
-		expect(response.body).toEqual({ message: "The user already exists" });
+
+		// Verificar a estrutura da resposta de erro padronizada
+		expect(response.body).toEqual(
+			ApiResponse.error(500, "The user already exists", "Error")
+		);
 	});
 });
