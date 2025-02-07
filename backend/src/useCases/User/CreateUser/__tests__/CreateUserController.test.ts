@@ -1,5 +1,5 @@
 import request from "supertest";
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import { CreateUserController } from "../CreateUserController";
 import { CreateUserUseCase } from "../CreateUserUseCase";
 import { PostgresUsersRepository } from "../../../../repositories/implementations/PostgresUsersRepository";
@@ -17,16 +17,29 @@ describe("Integration: CreateUserController with real database", () => {
 
 		app = express();
 		app.use(express.json());
-		app.post("/users", (req, res) => controller.handle(req, res));
+		// Route passing the 3 parameters: req, res, and next
+		app.post("/users", (req, res, next) =>
+			controller.handle(req, res, next)
+		);
+
+		// Error handling middleware
+		app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+			res.status(err.statusCode || 500).json({
+				status: "error",
+				message: err.message,
+				errorName: err.errorName || "",
+				details: err.details || "",
+			});
+		});
 	});
 
 	afterEach(async () => {
-		// Clear data created during the test
+		// Cleans up the data created during the test
 		await pool.query("DELETE FROM users");
 	});
 
 	afterAll(async () => {
-		// Close the database connection
+		// Closes the database connection
 		await pool.end();
 	});
 
@@ -34,14 +47,14 @@ describe("Integration: CreateUserController with real database", () => {
 		const userData = {
 			name: "John Doe",
 			email: "john@example.com",
-			password: "secret",
+			password: "Secret123!", // Valid password according to the rules
 		};
 
 		const response = await request(app).post("/users").send(userData);
 
 		expect(response.status).toBe(201);
 
-		// Verificar a estrutura da resposta padronizada
+		// Verifies the structure of the standardized response
 		expect(response.body).toEqual(
 			expect.objectContaining({
 				status: "success",
@@ -57,23 +70,27 @@ describe("Integration: CreateUserController with real database", () => {
 		);
 	});
 
-	it("should return 500 if the user already exists", async () => {
+	it("should return 409 if the user already exists", async () => {
 		const userData = {
 			name: "Jane Doe",
 			email: "jane@example.com",
-			password: "secret",
+			password: "Secret123!", // Valid password
 		};
 
-		// Create the user once
+		// Creates the user once
 		await request(app).post("/users").send(userData);
-		// Try to create again with the same email
+		// Tries to create again with the same email
 		const response = await request(app).post("/users").send(userData);
 
-		expect(response.status).toBe(500);
+		expect(response.status).toBe(409);
 
-		// Verificar a estrutura da resposta de erro padronizada
-		expect(response.body).toEqual(
-			ApiResponse.error(500, "The user already exists", "Error")
-		);
+		// Expects the error object to be:
+		// { status: "error", message: "User already exists", errorName: "USER_ALREADY_EXISTS", details: "" }
+		expect(response.body).toEqual({
+			status: "error",
+			message: "User already exists",
+			errorName: "USER_ALREADY_EXISTS",
+			details: "",
+		});
 	});
 });
