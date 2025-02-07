@@ -1,5 +1,6 @@
 import { PostgresUsersRepository } from "./PostgresUsersRepository";
 import { User } from "../../entities/User";
+import { CustomError, ErrorCatalog } from "../../errors/CustomError";
 
 // Mock for the database connection and release methods
 const mockQuery = jest.fn();
@@ -121,15 +122,28 @@ describe("PostgresUsersRepository (Unit Test)", () => {
 		const user = new User(userProps, undefined, createdAt, updatedAt);
 
 		// Mock query failure scenario
-		mockQuery.mockRejectedValueOnce(new Error("Database error"));
+		const dbError = new Error("Database error");
+		mockQuery.mockRejectedValueOnce(dbError);
 
 		try {
 			await repository.save(user);
 		} catch (error) {
-			// Verify that the error message is correct
+			// Check that the error is an instance of CustomError
+			expect(error).toBeInstanceOf(CustomError);
+
+			// Check the structure of the CustomError
 			expect(error.message).toBe(
-				"Failed to save the user in the database: Database error"
+				ErrorCatalog.ERROR.USER.REPOSITORY.USER_SAVE_FAILED.message
 			);
+			expect(error.statusCode).toBe(
+				ErrorCatalog.ERROR.USER.REPOSITORY.USER_SAVE_FAILED.statusCode
+			);
+			expect(error.errorName).toBe(
+				ErrorCatalog.ERROR.USER.REPOSITORY.USER_SAVE_FAILED.errorName
+			);
+
+			// Check if the original error message was appended to details
+			expect(error.details).toBe(dbError.message);
 		}
 	});
 

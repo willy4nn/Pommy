@@ -1,7 +1,7 @@
 import { CreateUserController } from "../CreateUserController";
 import { CreateUserUseCase } from "../CreateUserUseCase";
 import { ICreateUserResponseDTO } from "../CreateUserDTO";
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { ApiResponse } from "../../../../helpers/ApiResponse";
 
 // Mocking the use case
@@ -12,6 +12,7 @@ describe("CreateUserController", () => {
 	let createUserController: CreateUserController;
 	let mockRequest: Partial<Request>;
 	let mockResponse: Partial<Response>;
+	let nextFunction: jest.Mock;
 
 	beforeEach(() => {
 		// Creating a mocked instance of the use case
@@ -22,12 +23,13 @@ describe("CreateUserController", () => {
 		// Instantiating the controller
 		createUserController = new CreateUserController(createUserUseCase);
 
-		// Mocking the request and response
+		// Mocking the request, response, and next function
+		nextFunction = jest.fn();
 		mockRequest = {
 			body: {
 				name: "user",
 				email: "user@user.com",
-				password: "password",
+				password: "password123", // Change to include a number
 			},
 		};
 		mockResponse = {
@@ -48,7 +50,8 @@ describe("CreateUserController", () => {
 
 		await createUserController.handle(
 			mockRequest as Request,
-			mockResponse as Response
+			mockResponse as Response,
+			nextFunction
 		);
 
 		expect(mockResponse.status).toHaveBeenCalledWith(201);
@@ -58,18 +61,24 @@ describe("CreateUserController", () => {
 	});
 
 	it("should return an error message if something goes wrong", async () => {
+		// Mocking the next middleware
+		const nextFunction = jest.fn();
+
+		// Simulating an error in the use case execution
 		createUserUseCase.execute.mockRejectedValue(
 			new Error("An unexpected error occurred")
 		);
 
+		// Calling the controller's 'handle' method and passing the 'next'
 		await createUserController.handle(
 			mockRequest as Request,
-			mockResponse as Response
+			mockResponse as Response,
+			nextFunction
 		);
 
-		expect(mockResponse.status).toHaveBeenCalledWith(500);
-		expect(mockResponse.json).toHaveBeenCalledWith(
-			ApiResponse.error(500, "An unexpected error occurred", "Error")
+		// Expecting the next function to be called with the error
+		expect(nextFunction).toHaveBeenCalledWith(
+			new Error("An unexpected error occurred")
 		);
 	});
 });
