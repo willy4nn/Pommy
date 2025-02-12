@@ -10,6 +10,21 @@ class ErrorCatalog {
 	static ERROR = {
 		USER: {
 			VALIDATION: {
+				ID_REQUIRED: {
+					message: "User ID is required",
+					errorName: "ID_REQUIRED",
+					statusCode: 400,
+				},
+				ID_INVALID: {
+					message: "User ID is invalid",
+					errorName: "ID_INVALID",
+					statusCode: 400,
+				},
+				ID_INVALID_FORMAT: {
+					message: "User ID format is invalid",
+					errorName: "ID_INVALID_FORMAT",
+					statusCode: 400,
+				},
 				NAME_REQUIRED: {
 					message: "Name is required",
 					errorName: "NAME_REQUIRED",
@@ -178,6 +193,11 @@ class ErrorCatalog {
 					message: "Insufficient privileges",
 					errorName: "INSUFFICIENT_PRIVILEGES",
 					statusCode: 403,
+				},
+				USER_NOT_FOUND: {
+					message: "User does not exist",
+					errorName: "USER_NOT_FOUND",
+					statusCode: 404,
 				},
 			},
 		},
