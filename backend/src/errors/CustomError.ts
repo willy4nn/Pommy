@@ -140,6 +140,16 @@ class ErrorCatalog {
 					errorName: "QUERY_FAILED",
 					statusCode: 500,
 				},
+				USER_NOT_FOUND: {
+					message: "User not found",
+					errorName: "USER_NOT_FOUND",
+					statusCode: 404,
+				},
+				USER_UPDATE_FAILED: {
+					message: "Failed to update user",
+					errorName: "USER_UPDATE_FAILED",
+					statusCode: 500,
+				},
 			},
 			PERMISSION: {
 				UNAUTHORIZED: {
