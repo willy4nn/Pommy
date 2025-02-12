@@ -1,4 +1,24 @@
 import { CustomError, ErrorCatalog } from "../errors/CustomError";
+// Function to validate the user's ID
+function validateId(id: string): void {
+	// Check if the ID is provided
+	if (!id) {
+		throw new CustomError(ErrorCatalog.ERROR.USER.VALIDATION.ID_REQUIRED);
+	}
+	// Check if the ID is a valid string
+	if (typeof id !== "string" || id.trim() === "") {
+		throw new CustomError(ErrorCatalog.ERROR.USER.VALIDATION.ID_INVALID);
+	}
+	// Check if the ID matches the general UUID format
+	const uuidRegex =
+		/^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
+	if (!uuidRegex.test(id)) {
+		throw new CustomError(
+			ErrorCatalog.ERROR.USER.VALIDATION.ID_INVALID_FORMAT
+		);
+	}
+}
+
 // Function to validate the user's name
 function validateName(name: string): void {
 	// Check if the name is provided
@@ -104,4 +124,4 @@ function validatePassword(password: string): void {
 		);
 	}
 }
-export { validateName, validateEmail, validatePassword };
+export { validateName, validateEmail, validatePassword, validateId };
