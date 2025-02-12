@@ -107,6 +107,27 @@ class ErrorCatalog {
 					errorName: "ACCOUNT_LOCKED",
 					statusCode: 423,
 				},
+				NO_TOKEN_PROVIDED: {
+					message: "Access denied. No authentication token provided.",
+					errorName: "NO_TOKEN_PROVIDED",
+					statusCode: 401,
+				},
+				INVALID_TOKEN_PAYLOAD: {
+					message: "Invalid token payload.",
+					errorName: "INVALID_TOKEN_PAYLOAD",
+					statusCode: 401,
+				},
+				INVALID_OR_EXPIRED_TOKEN: {
+					message: "Invalid or expired token.",
+					errorName: "INVALID_OR_EXPIRED_TOKEN",
+					statusCode: 401,
+				},
+				INVALID_SECRET_KEY: {
+					message:
+						"JWT_SECRET_KEY is not defined in the environment variables.",
+					errorName: "INVALID_SECRET_KEY",
+					statusCode: 500,
+				},
 			},
 			REPOSITORY: {
 				USER_SAVE_FAILED: {
