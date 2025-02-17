@@ -23,6 +23,13 @@ describe("Integration: LoginUserController with real database", () => {
 		// Sets up the express app with the login route
 		app = express();
 		app.use(express.json());
+
+		// Middleware to clear cookies before handling requests
+		app.use((req, res, next) => {
+			res.clearCookie("token");
+			next();
+		});
+
 		app.post("/login", (req, res, next) =>
 			controller.handle(req, res, next)
 		);
