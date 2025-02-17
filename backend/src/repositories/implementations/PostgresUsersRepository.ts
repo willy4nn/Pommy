@@ -118,4 +118,19 @@ export class PostgresUsersRepository implements IUsersRepository {
 			client.release(); // Release the client
 		}
 	}
+
+	// Method to delete
+	async delete(id: string): Promise<void> {
+		const client = await pool.connect();
+		try {
+			await client.query("DELETE FROM users WHERE id = $1", [id]);
+		} catch (error) {
+			throw new CustomError(
+				ErrorCatalog.ERROR.USER.REPOSITORY.USER_DELETE_FAILED,
+				error.message
+			);
+		} finally {
+			client.release();
+		}
+	}
 }

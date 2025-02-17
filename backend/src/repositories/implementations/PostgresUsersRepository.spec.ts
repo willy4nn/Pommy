@@ -337,5 +337,52 @@ describe("PostgresUsersRepository (Unit Test)", () => {
 			expect(error.details).toBe(dbError.message);
 		}
 	});
+
+	it("should delete a user", async () => {
+		// Simulates successful deletion
+		mockQuery.mockResolvedValueOnce({ rowCount: 1 });
+
+		await repository.delete("user-id");
+
+		expect(mockQuery).toHaveBeenCalledWith(
+			"DELETE FROM users WHERE id = $1",
+			["user-id"]
+		);
+		expect(mockRelease).toHaveBeenCalled();
+	});
+
+	it("should not throw an error if no user is found during delete", async () => {
+		// Simulates scenario where no user is found (rowCount = 0), but without throwing an error
+		mockQuery.mockResolvedValueOnce({ rowCount: 0 });
+
+		await repository.delete("nonexistent-id");
+
+		expect(mockQuery).toHaveBeenCalledWith(
+			"DELETE FROM users WHERE id = $1",
+			["nonexistent-id"]
+		);
+		expect(mockRelease).toHaveBeenCalled();
+	});
+
+	it("should throw CustomError USER_DELETE_FAILED if query fails during delete", async () => {
+		// Simulates an unexpected query failure
+		const dbError = new Error("Database error");
+		mockQuery.mockRejectedValueOnce(dbError);
+
+		try {
+			await repository.delete("some-id");
+			fail("Expected error was not thrown");
+		} catch (error) {
+			expect(error).toBeInstanceOf(CustomError);
+			expect(error.message).toBe("Failed to delete user");
+			expect(error.statusCode).toBe(
+				ErrorCatalog.ERROR.USER.REPOSITORY.USER_DELETE_FAILED.statusCode
+			);
+			expect(error.errorName).toBe(
+				ErrorCatalog.ERROR.USER.REPOSITORY.USER_DELETE_FAILED.errorName
+			);
+			expect(error.details).toBe("Database error");
+			expect(mockRelease).toHaveBeenCalled();
+		}
+	});
 });
-	
