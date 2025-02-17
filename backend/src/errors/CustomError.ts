@@ -165,6 +165,11 @@ class ErrorCatalog {
 					errorName: "USER_UPDATE_FAILED",
 					statusCode: 500,
 				},
+				USER_DELETE_FAILED: {
+					message: "Failed to delete user",
+					errorName: "USER_DELETE_FAILED",
+					statusCode: 500,
+				},
 			},
 			PERMISSION: {
 				UNAUTHORIZED: {
