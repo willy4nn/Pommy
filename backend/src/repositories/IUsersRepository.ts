@@ -12,4 +12,7 @@ export interface IUsersRepository {
 
 	// Method to update a user
 	update(user: User): Promise<void>;
+
+	// Method to delete a user
+	delete(id: string): Promise<void>;
 }
