@@ -4,6 +4,7 @@ import { loginUserController } from "./useCases/Auth/Login";
 import { logoutUserController } from "./useCases/Auth/Logout";
 import { updateUserController } from "./useCases/User/UpdateUser";
 import { authMiddleware } from "./middlewares/authMiddleware";
+import { deleteUserController } from "./useCases/User/DeleteUser";
 
 const router = Router(); // Create a new instance of the router
 
@@ -25,6 +26,11 @@ router.post("/logout", (request, response, next) => {
 // PUT route to update a user
 router.put("/users", authMiddleware, (request, response, next) => {
 	return updateUserController.handle(request, response, next);
+});
+
+// DELETE route to delete a user
+router.delete("/users", authMiddleware, (request, response, next) => {
+	return deleteUserController.handle(request, response, next);
 });
 
 export { router }; // Export the router for use in other modules
