@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import { LogoutUserController } from "../LogoutUserController"; // Correct path for your controller
-import { ApiResponse } from "../../../../helpers/ApiResponse"; // Adjust the path as needed
+import { LogoutUserController } from "../LogoutUserController";
+import { ApiResponse } from "../../../../helpers/ApiResponse";
 
-describe("LogoutUserController", () => {
+describe("Unit Tests: LogoutUserController – Ensuring Token Clearance and Error Handling", () => {
 	let controller: LogoutUserController;
 	let mockRequest: Partial<Request>;
 	let mockResponse: Partial<Response>;
