@@ -1,101 +1,114 @@
 import request from "supertest";
-import express, { Request, Response, NextFunction } from "express";
-import bcrypt from "bcrypt";
-import { LoginUserController } from "../LoginUserController";
-import { LoginUserUseCase } from "../LoginUserUseCase";
-import { PostgresUsersRepository } from "../../../../repositories/implementations/PostgresUsersRepository";
+import { app } from "../../../../app";
 import { pool } from "../../../../config/db";
-import { User } from "../../../../entities/User";
+import { CustomError, ErrorCatalog } from "../../../../errors/CustomError";
 
-describe("Integration: LoginUserController with real database", () => {
-	let app: express.Express;
-	let controller: LoginUserController;
+describe("LoginUserController", () => {
+	let userId: string;
+	let token: string;
+	const testEmail = "test@example.com";
 
-	beforeEach(async () => {
-		// Clears the users table before each test
-		await pool.query("DELETE FROM users");
-
-		// Instantiates the real repository
-		const usersRepository = new PostgresUsersRepository();
-		const loginUserUseCase = new LoginUserUseCase(usersRepository);
-		controller = new LoginUserController(loginUserUseCase);
-
-		// Sets up the express app with the login route
-		app = express();
-		app.use(express.json());
-
-		// Middleware to clear cookies before handling requests
-		app.use((req, res, next) => {
-			res.clearCookie("token");
-			next();
+	beforeAll(async () => {
+		// Create a test user before running the login tests
+		const response = await request(app).post("/users").send({
+			name: "user",
+			email: testEmail,
+			password: "Password123@",
 		});
 
-		app.post("/login", (req, res, next) =>
-			controller.handle(req, res, next)
+		expect(response.status).toBe(201);
+		userId = response.body.data.id;
+	});
+
+	it("should fail when logging in with incorrect credentials", async () => {
+		const response = await request(app).post("/login").send({
+			email: testEmail,
+			password: "WrongPassword123@",
+		});
+
+		const error = new CustomError(
+			ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_CREDENTIALS
 		);
 
-		// Error handling middleware
-		app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-			res.status(err.statusCode || 500).json({
-				status: "error",
-				message: err.message,
-				errorName: err.errorName || "",
-				details: err.details || "",
-			});
+		expect(response.status).toBe(error.statusCode);
+		expect(response.body.status).toBe("error");
+		expect(response.body.message).toBe(error.message);
+	});
+
+	it("should fail when logging in without an email", async () => {
+		const response = await request(app).post("/login").send({
+			password: "Password123@",
 		});
 
-		// Creates a new user using the real repository
-		const hashedPassword = await bcrypt.hash("password123", 10);
-		const user = new User({
-			name: "Test User",
-			email: "test@example.com", // Ensure the email matches the one used in the tests
-			password: hashedPassword,
+		const error = new CustomError(
+			ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_CREDENTIALS
+		);
+
+		expect(response.status).toBe(error.statusCode);
+		expect(response.body.status).toBe("error");
+		expect(response.body.message).toBe(error.message);
+	});
+
+	it("should fail when logging in with an invalid email format", async () => {
+		const response = await request(app).post("/login").send({
+			email: "invalidemail",
+			password: "Password123@",
 		});
-		await usersRepository.save(user); // Inserts the user into the database
+
+		const error = new CustomError(
+			ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_CREDENTIALS
+		);
+
+		expect(response.status).toBe(error.statusCode);
+		expect(response.body.status).toBe("error");
+		expect(response.body.message).toBe(error.message);
+	});
+
+	it("should log in successfully and set the token in the cookie", async () => {
+		const response = await request(app).post("/login").send({
+			email: testEmail,
+			password: "Password123@",
+		});
+
+		expect(response.status).toBe(201);
+		expect(response.body.status).toBe("success");
+		expect(response.body.data.token).toBeDefined();
+		token = response.body.data.token;
+		expect(response.headers["set-cookie"]).toBeDefined();
+		expect(response.headers["set-cookie"][0]).toContain("token=");
+	});
+
+	it("should verify the cookie settings", async () => {
+		const response = await request(app).post("/login").send({
+			email: testEmail,
+			password: "Password123@",
+		});
+
+		const cookie = response.headers["set-cookie"][0];
+		expect(cookie).toContain("token=");
+		expect(cookie).toContain("HttpOnly");
+		expect(cookie).toContain("Secure");
+		expect(cookie).toContain("SameSite=Strict");
+		expect(cookie).toContain("Max-Age=3600");
+	});
+
+	it("should return status 201 on successful login", async () => {
+		const response = await request(app).post("/login").send({
+			email: testEmail,
+			password: "Password123@",
+		});
+
+		expect(response.status).toBe(201);
 	});
 
 	afterAll(async () => {
-		// Clears the users table and closes the database connection
-		await pool.query("DELETE FROM users");
+		// Delete the test user after running the tests
+		const response = await request(app)
+			.delete("/users")
+			.set("Authorization", `Bearer ${token}`);
+		expect(response.status).toBe(200);
+
+		// Close the database connection
 		await pool.end();
-	});
-
-	it("should login successfully and return 201 with token and set cookie", async () => {
-		const response = await request(app)
-			.post("/login")
-			.send({ email: "test@example.com", password: "password123" });
-
-		expect(response.status).toBe(201);
-		expect(response.body).toEqual(
-			expect.objectContaining({
-				status: "success",
-				message: "User logged in successfully!",
-				data: expect.any(String), // Token generated
-			})
-		);
-
-		// Verifies if the token cookie was set
-		const setCookieHeader = response.header["set-cookie"];
-		let cookies: string[] = [];
-		if (Array.isArray(setCookieHeader)) {
-			cookies = setCookieHeader;
-		} else if (typeof setCookieHeader === "string") {
-			cookies = [setCookieHeader];
-		}
-		expect(cookies.some((cookie) => cookie.includes("token="))).toBe(true);
-	});
-
-	it("should return 401 error for invalid credentials", async () => {
-		const response = await request(app)
-			.post("/login")
-			.send({ email: "test@example.com", password: "wrongpassword" });
-
-		expect(response.status).toBe(401);
-		expect(response.body).toEqual({
-			status: "error",
-			message: "Invalid credentials",
-			errorName: "INVALID_CREDENTIALS",
-			details: "",
-		});
 	});
 });
