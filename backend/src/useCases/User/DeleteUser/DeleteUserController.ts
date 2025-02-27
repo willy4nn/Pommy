@@ -17,6 +17,14 @@ export class DeleteUserController {
 			// Execute the use case to delete the user
 			await this.deleteUserUseCase.execute({ id: userId });
 
+			// Clear the authentication cookie
+			response.clearCookie("token", {
+				httpOnly: true,
+				secure: true,
+				sameSite: "strict",
+				path: "/",
+			});
+
 			// Return a success response
 			const responseBody = ApiResponse.success(
 				{},
