@@ -49,13 +49,17 @@ describe("DeleteUserUseCase (Unit Tests)", () => {
 	});
 
 	it("should throw an error if the user doesn't exist", async () => {
+		const error = new CustomError(
+			ErrorCatalog.ERROR.USER.SERVICE.USER_NOT_FOUND
+		);
+
 		// Mocking findById to return null (user not found)
 		mockPostgresUsersRepository.findById.mockResolvedValue(null);
 
 		const userId = uuidv4(); // Generate a valid UUID for testing
 
 		await expect(deleteUserUseCase.execute({ id: userId })).rejects.toThrow(
-			new CustomError(ErrorCatalog.ERROR.USER.SERVICE.USER_NOT_FOUND)
+			error
 		);
 
 		// Verifies that findById was called with the correct ID
@@ -68,15 +72,17 @@ describe("DeleteUserUseCase (Unit Tests)", () => {
 	});
 
 	it("should throw an error if the repository fails to delete the user", async () => {
-		// Mocking a failure in the repository's delete method
-		mockPostgresUsersRepository.delete.mockRejectedValue(
-			new Error("Failed to delete")
+		const error = new CustomError(
+			ErrorCatalog.ERROR.USER.REPOSITORY.USER_DELETE_FAILED
 		);
+
+		// Mocking a failure in the repository's delete method
+		mockPostgresUsersRepository.delete.mockRejectedValue(error);
 
 		const userId = uuidv4(); // Generate a valid UUID for testing
 
 		await expect(deleteUserUseCase.execute({ id: userId })).rejects.toThrow(
-			"Failed to delete"
+			error
 		);
 
 		// Verifies that delete was called with the correct ID
