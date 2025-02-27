@@ -14,8 +14,10 @@ export const authMiddleware = (
 		request.headers["authorization"]?.split(" ")[1];
 
 	if (!token) {
-		throw new CustomError(
-			ErrorCatalog.ERROR.USER.AUTHENTICATION.NO_TOKEN_PROVIDED
+		return next(
+			new CustomError(
+				ErrorCatalog.ERROR.USER.AUTHENTICATION.NO_TOKEN_PROVIDED
+			)
 		);
 	}
 
@@ -34,6 +36,25 @@ export const authMiddleware = (
 
 		next();
 	} catch (err) {
+		// If the token is invalid, handles JWT errors
+		if (err instanceof jwt.JsonWebTokenError) {
+			return next(
+				new CustomError(
+					ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_OR_EXPIRED_TOKEN
+				)
+			);
+		}
+
+		// If the token has expired, handles TokenExpiredError
+		if (err instanceof jwt.TokenExpiredError) {
+			return next(
+				new CustomError(
+					ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_OR_EXPIRED_TOKEN
+				)
+			);
+		}
+
+		// Passes any other error to the next error handler
 		next(err);
 	}
 };

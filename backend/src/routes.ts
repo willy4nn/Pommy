@@ -19,7 +19,7 @@ router.post("/login", (request, response, next) => {
 });
 
 // POST route to log out a user
-router.post("/logout", (request, response, next) => {
+router.post("/logout", authMiddleware, (request, response, next) => {
 	return logoutUserController.handle(request, response, next);
 });
 
