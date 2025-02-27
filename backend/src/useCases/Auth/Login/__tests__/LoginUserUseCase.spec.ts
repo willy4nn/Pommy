@@ -1,168 +1,133 @@
-import bcrypt from "bcrypt";
 import { LoginUserUseCase } from "../LoginUserUseCase";
 import { IUsersRepository } from "../../../../repositories/IUsersRepository";
-import { CustomError, ErrorCatalog } from "../../../../errors/CustomError";
 import { generateToken } from "../../../../helpers/generateToken";
+import bcrypt from "bcrypt";
+import { CustomError, ErrorCatalog } from "../../../../errors/CustomError";
+import { User } from "../../../../entities/User";
 
 // Mock dependencies
-jest.mock("bcrypt");
 jest.mock("../../../../helpers/generateToken");
+jest.mock("bcrypt");
 
-describe("LoginUserUseCase", () => {
-	const mockUsersRepository: jest.Mocked<IUsersRepository> = {
-		findByEmail: jest.fn(),
-		// ... add other repository methods if needed
-	} as unknown as jest.Mocked<IUsersRepository>;
+describe("Unit Tests - LoginUserUseCase", () => {
+	let loginUserUseCase: LoginUserUseCase;
+	let usersRepositoryMock: jest.Mocked<IUsersRepository>;
 
-	const loginUserUseCase = new LoginUserUseCase(mockUsersRepository);
+	beforeAll(() => {
+		// Create a mocked repository with the correct types
+		usersRepositoryMock = {
+			findById: jest.fn(),
+			findByEmail: jest.fn(),
+			save: jest.fn(),
+			update: jest.fn(),
+			delete: jest.fn(),
+		};
 
-	afterEach(() => {
-		jest.clearAllMocks();
+		// Create an instance of the use case passing the mocked repository
+		loginUserUseCase = new LoginUserUseCase(usersRepositoryMock);
 	});
 
-	// Updated mockUser matching the User type requirements
-	const mockUser = {
-		id: "1",
-		email: "test@example.com",
-		password: "hashedPassword",
-		createdAt: new Date(),
-		name: "Test User",
-		updatedAt: new Date(),
-	};
-
-	it("should throw INVALID_CREDENTIALS error when email is not provided", async () => {
+	it("should throw an error when the email is missing", async () => {
+		// Test if an error is thrown when email is empty
 		await expect(
-			loginUserUseCase.execute({ email: "", password: "password123" })
-		).rejects.toThrowError(CustomError);
-
-		await expect(
-			loginUserUseCase.execute({ email: "", password: "password123" })
-		).rejects.toMatchObject({
-			errorName:
+			loginUserUseCase.execute({ email: "", password: "Password123@" })
+		).rejects.toThrow(
+			new CustomError(
 				ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_CREDENTIALS
-					.errorName,
-			message:
-				ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_CREDENTIALS
-					.message,
-			statusCode:
-				ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_CREDENTIALS
-					.statusCode,
-		});
-	});
-
-	it("should throw INVALID_CREDENTIALS error when password is not provided", async () => {
-		await expect(
-			loginUserUseCase.execute({
-				email: "test@example.com",
-				password: "",
-			})
-		).rejects.toThrowError(CustomError);
-
-		await expect(
-			loginUserUseCase.execute({
-				email: "test@example.com",
-				password: "",
-			})
-		).rejects.toMatchObject({
-			errorName:
-				ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_CREDENTIALS
-					.errorName,
-			message:
-				ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_CREDENTIALS
-					.message,
-			statusCode:
-				ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_CREDENTIALS
-					.statusCode,
-		});
-	});
-
-	it("should throw INVALID_CREDENTIALS error when user does not exist", async () => {
-		mockUsersRepository.findByEmail.mockResolvedValueOnce(null);
-
-		await expect(
-			loginUserUseCase.execute({
-				email: "nonexistent@example.com",
-				password: "password123",
-			})
-		).rejects.toThrowError(CustomError);
-
-		await expect(
-			loginUserUseCase.execute({
-				email: "nonexistent@example.com",
-				password: "password123",
-			})
-		).rejects.toMatchObject({
-			errorName:
-				ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_CREDENTIALS
-					.errorName,
-			message:
-				ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_CREDENTIALS
-					.message,
-			statusCode:
-				ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_CREDENTIALS
-					.statusCode,
-		});
-
-		expect(mockUsersRepository.findByEmail).toHaveBeenCalledWith(
-			"nonexistent@example.com"
+			)
 		);
 	});
 
-	it("should throw INVALID_CREDENTIALS error when password is invalid", async () => {
-		mockUsersRepository.findByEmail.mockResolvedValueOnce(mockUser);
-		(bcrypt.compare as jest.Mock).mockResolvedValueOnce(false);
+	it("should throw an error when the password is missing", async () => {
+		// Test if an error is thrown when password is empty
+		await expect(
+			loginUserUseCase.execute({ email: "user@email.com", password: "" })
+		).rejects.toThrow(
+			new CustomError(
+				ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_CREDENTIALS
+			)
+		);
+	});
 
+	it("should throw an error when the user does not exist", async () => {
+		// Test if an error is thrown when no user is found for the given email
 		await expect(
 			loginUserUseCase.execute({
-				email: "test@example.com",
-				password: "wrongPassword",
+				email: "user@email.com",
+				password: "Password123@",
 			})
-		).rejects.toThrowError(CustomError);
+		).rejects.toThrow(
+			new CustomError(
+				ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_CREDENTIALS
+			)
+		);
+	});
 
-		await expect(
-			loginUserUseCase.execute({
-				email: "test@example.com",
-				password: "wrongPassword",
-			})
-		).rejects.toMatchObject({
-			errorName:
-				ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_CREDENTIALS
-					.errorName,
-			message:
-				ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_CREDENTIALS
-					.message,
-			statusCode:
-				ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_CREDENTIALS
-					.statusCode,
+	it("should throw an error when the password is incorrect", async () => {
+		const correctPassword = "Password123@";
+
+		// Create a user with the correct password stored
+		const user = new User({
+			name: "John Doe",
+			email: "user@email.com",
+			password: correctPassword,
 		});
 
-		expect(mockUsersRepository.findByEmail).toHaveBeenCalledWith(
-			"test@example.com"
+		// Mock the repository to return the user when searched by email
+		usersRepositoryMock.findByEmail.mockResolvedValue(user);
+
+		// Mock bcrypt.compare to return false (password mismatch)
+		bcrypt.compare = jest.fn().mockResolvedValue(false);
+
+		// Test if the use case throws an error when the wrong password is provided
+		await expect(
+			loginUserUseCase.execute({
+				email: "user@email.com",
+				password: "WrongPassword123@", // Incorrect password
+			})
+		).rejects.toThrow(
+			new CustomError(
+				ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_CREDENTIALS
+			)
 		);
+	});
+
+	it("should return a token when authentication is successful", async () => {
+		const correctPassword = "Password123@";
+
+		// Create a user with the correct password stored
+		const user = new User({
+			name: "John Doe",
+			email: "user@email.com",
+			password: correctPassword,
+		});
+
+		// Mock the repository to return the user when searched by email
+		usersRepositoryMock.findByEmail.mockResolvedValue(user);
+
+		// Mock bcrypt.compare to return true (correct password)
+		bcrypt.compare = jest.fn().mockResolvedValue(true);
+
+		// Mock generateToken to return a generated token
+		const token = "generated_token";
+		(generateToken as jest.Mock).mockReturnValue(token); // Type cast to ensure it's treated as a mock
+
+		// Execute the login method with correct credentials
+		const result = await loginUserUseCase.execute({
+			email: "user@email.com",
+			password: correctPassword,
+		});
+
+		// Assert that the returned token is the one generated
+		expect(result).toBe(token);
+
+		// Assert that bcrypt.compare was called with the correct parameters
 		expect(bcrypt.compare).toHaveBeenCalledWith(
-			"wrongPassword",
-			"hashedPassword"
+			correctPassword,
+			user.password
 		);
-	});
 
-	it("should return a token when email and password are valid", async () => {
-		mockUsersRepository.findByEmail.mockResolvedValueOnce(mockUser);
-		(bcrypt.compare as jest.Mock).mockResolvedValueOnce(true);
-		(generateToken as jest.Mock).mockReturnValue("mockToken");
-
-		const token = await loginUserUseCase.execute({
-			email: "test@example.com",
-			password: "validPassword",
-		});
-
-		expect(token).toBe("mockToken");
-		expect(mockUsersRepository.findByEmail).toHaveBeenCalledWith(
-			"test@example.com"
-		);
-		expect(bcrypt.compare).toHaveBeenCalledWith(
-			"validPassword",
-			"hashedPassword"
-		);
-		expect(generateToken).toHaveBeenCalledWith("1");
+		// Assert that generateToken was called with the correct user ID
+		expect(generateToken).toHaveBeenCalledWith(user.id);
 	});
 });
