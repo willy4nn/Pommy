@@ -26,7 +26,9 @@ export class LoginUserController {
 
 			// Prepare and send the success response
 			const responseBody = ApiResponse.success(
-				token,
+				{
+					token,
+				},
 				"User logged in successfully!"
 			);
 
