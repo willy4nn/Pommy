@@ -3,6 +3,7 @@ import { UpdateUserUseCase } from "../UpdateUserUseCase";
 import { IUpdateUserResponseDTO } from "../UpdateUserDTO";
 import { Request, Response, NextFunction } from "express";
 import { ApiResponse } from "../../../../helpers/ApiResponse";
+import { CustomError, ErrorCatalog } from "../../../../errors/CustomError";
 
 // Mocking the use case
 jest.mock("../UpdateUserUseCase");
@@ -71,7 +72,7 @@ describe("UpdateUserController", () => {
 	it("should return an error message if something goes wrong", async () => {
 		// Simulating an error in the use case execution
 		updateUserUseCase.execute.mockRejectedValue(
-			new Error("An unexpected error occurred")
+			new CustomError(ErrorCatalog.ERROR.USER.REPOSITORY.USER_UPDATE_FAILED)
 		);
 
 		// Calling the controller's handle method and passing the next function
@@ -83,7 +84,7 @@ describe("UpdateUserController", () => {
 
 		// Expecting the next function to be called with the error
 		expect(nextFunction).toHaveBeenCalledWith(
-			new Error("An unexpected error occurred")
+			new CustomError(ErrorCatalog.ERROR.USER.REPOSITORY.USER_UPDATE_FAILED)
 		);
 	});
 });
