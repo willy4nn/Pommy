@@ -1,5 +1,5 @@
 import { DeleteUserUseCase } from "../DeleteUserUseCase";
-import { PostgresUsersRepository } from "../../../../repositories/implementations/PostgresUsersRepository";
+import { PostgresUsersRepository } from "../../../../repositories/Users/implementations/PostgresUsersRepository";
 import { CustomError, ErrorCatalog } from "../../../../errors/CustomError";
 import { v4 as uuidv4 } from "uuid";
 

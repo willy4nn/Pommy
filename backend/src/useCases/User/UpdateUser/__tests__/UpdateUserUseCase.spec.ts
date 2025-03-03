@@ -1,5 +1,5 @@
 import { UpdateUserUseCase } from "../UpdateUserUseCase";
-import { PostgresUsersRepository } from "../../../../repositories/implementations/PostgresUsersRepository";
+import { PostgresUsersRepository } from "../../../../repositories/Users/implementations/PostgresUsersRepository";
 import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
 import { CustomError, ErrorCatalog } from "../../../../errors/CustomError";

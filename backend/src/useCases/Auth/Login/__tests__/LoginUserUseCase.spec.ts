@@ -1,9 +1,9 @@
 import { LoginUserUseCase } from "../LoginUserUseCase";
-import { IUsersRepository } from "../../../../repositories/IUsersRepository";
+import { IUsersRepository } from "../../../../repositories/Users/IUsersRepository";
 import { generateToken } from "../../../../helpers/generateToken";
 import bcrypt from "bcrypt";
 import { CustomError, ErrorCatalog } from "../../../../errors/CustomError";
-import { User } from "../../../../entities/User";
+import { User } from "../../../../entities/User/User";
 
 // Mock dependencies
 jest.mock("../../../../helpers/generateToken");

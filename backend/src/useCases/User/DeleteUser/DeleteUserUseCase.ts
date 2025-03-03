@@ -1,5 +1,5 @@
 import { CustomError, ErrorCatalog } from "../../../errors/CustomError";
-import { IUsersRepository } from "../../../repositories/IUsersRepository";
+import { IUsersRepository } from "../../../repositories/Users/IUsersRepository";
 import { IDeleteUserRequestDTO } from "./DeleteUserDTO";
 import { deleteUserValidator } from "./DeleteUserValidator";
 

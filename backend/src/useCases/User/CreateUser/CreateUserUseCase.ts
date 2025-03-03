@@ -1,6 +1,6 @@
-import { User } from "../../../entities/User";
+import { User } from "../../../entities/User/User";
 import { CustomError, ErrorCatalog } from "../../../errors/CustomError";
-import { IUsersRepository } from "../../../repositories/IUsersRepository";
+import { IUsersRepository } from "../../../repositories/Users/IUsersRepository";
 import { ICreateUserRequestDTO, ICreateUserResponseDTO } from "./CreateUserDTO";
 import bcrypt from "bcrypt";
 import { createUserValidator } from "./CreateUserValidator";

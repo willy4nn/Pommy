@@ -1,8 +1,8 @@
 import { CreateUserUseCase } from "../CreateUserUseCase";
-import { PostgresUsersRepository } from "../../../../repositories/implementations/PostgresUsersRepository";
+import { PostgresUsersRepository } from "../../../../repositories/Users/implementations/PostgresUsersRepository";
 import bcrypt from "bcrypt";
 import { CustomError, ErrorCatalog } from "../../../../errors/CustomError";
-import { User } from "../../../../entities/User";
+import { User } from "../../../../entities/User/User";
 
 // Mocking the repository and bcrypt
 jest.mock(

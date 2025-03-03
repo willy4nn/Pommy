@@ -1,6 +1,6 @@
 import { PostgresUsersRepository } from "./PostgresUsersRepository";
-import { User } from "../../entities/User";
-import { CustomError, ErrorCatalog } from "../../errors/CustomError";
+import { User } from "../../../entities/User/User";
+import { CustomError, ErrorCatalog } from "../../../errors/CustomError";
 
 // Mock for the database connection and release methods
 const mockQuery = jest.fn();

@@ -1,6 +1,6 @@
-import { User } from "../../../entities/User";
+import { User } from "../../../entities/User/User";
 import { CustomError, ErrorCatalog } from "../../../errors/CustomError";
-import { IUsersRepository } from "../../../repositories/IUsersRepository";
+import { IUsersRepository } from "../../../repositories/Users/IUsersRepository";
 import { IUpdateUserRequestDTO, IUpdateUserResponseDTO } from "./UpdateUserDTO";
 import { updateUserValidator } from "./UpdateUserValidator";
 import bcrypt from "bcrypt";
@@ -52,7 +52,7 @@ export class UpdateUserUseCase {
 			name: user.name,
 			email: user.email,
 			created_at: userExists.createdAt.toISOString(),
-			updated_at: userExists.updatedAt.toDateString(),
+			updated_at: userExists.updatedAt.toISOString(),
 		};
 
 		// Return the updated user response

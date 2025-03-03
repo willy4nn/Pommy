@@ -1,6 +1,6 @@
 import { CustomError, ErrorCatalog } from "../../../errors/CustomError";
 import { generateToken } from "../../../helpers/generateToken";
-import { IUsersRepository } from "../../../repositories/IUsersRepository";
+import { IUsersRepository } from "../../../repositories/Users/IUsersRepository";
 import { ILoginUserRequestDTO } from "./LoginUserDTO";
 import bcrypt from "bcrypt";
 

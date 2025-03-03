@@ -1,7 +1,7 @@
-import { pool } from "../../config/db";
-import { User } from "../../entities/User";
+import { pool } from "../../../config/db";
+import { User } from "../../../entities/User/User";
 import { IUsersRepository } from "../IUsersRepository";
-import { CustomError, ErrorCatalog } from "../../errors/CustomError";
+import { CustomError, ErrorCatalog } from "../../../errors/CustomError";
 
 export class PostgresUsersRepository implements IUsersRepository {
 	// Method to find user by id

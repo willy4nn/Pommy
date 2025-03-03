@@ -1,4 +1,4 @@
-import { IUsersRepository } from "../../../../repositories/IUsersRepository";
+import { IUsersRepository } from "../../../../repositories/Users/IUsersRepository";
 import { LoginUserUseCase } from "../LoginUserUseCase";
 import { LoginUserController } from "../LoginUserController";
 import { CustomError, ErrorCatalog } from "../../../../errors/CustomError";
