@@ -206,6 +206,15 @@ class ErrorCatalog {
 				},
 			},
 		},
+		GOAL: {
+			REPOSITORY: {
+				GOAL_SAVE_FAILED: {
+					message: "Failed to save goal",
+					errorName: "GOAL_SAVE_FAILED",
+					statusCode: 500,
+				},
+			},
+		},
 		SERVER: {
 			INTERNAL_ERROR: {
 				message: "Internal server error",
