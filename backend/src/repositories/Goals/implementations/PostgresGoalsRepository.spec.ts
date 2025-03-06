@@ -131,4 +131,118 @@ describe("PostgresGoalsRepository - Unit", () => {
 			expect(mockClient.release).toHaveBeenCalled();
 		});
 	});
+
+	describe("findById", () => {
+		it("should return a Goal if found", async () => {
+			const row = {
+				id: "goal-id",
+				user_id: "user-id",
+				title: "Test Goal",
+				description: "Test Description",
+				created_at: new Date("2023-01-01T00:00:00.000Z"),
+				updated_at: new Date("2023-01-02T00:00:00.000Z"),
+			};
+			mockClient.query.mockResolvedValue({ rows: [row] });
+
+			const result = await repository.findById("goal-id");
+
+			expect(result).toBeInstanceOf(Goal);
+			expect(result).toEqual(
+				new Goal(
+					{
+						title: row.title,
+						description: row.description,
+					},
+					row.id,
+					row.created_at,
+					row.updated_at
+				)
+			);
+			expect(mockClient.release).toHaveBeenCalled();
+		});
+
+		it("should return null if no goal is found", async () => {
+			mockClient.query.mockResolvedValue({ rows: [] });
+
+			const result = await repository.findById("invalid-id");
+
+			expect(result).toBeNull();
+			expect(mockClient.release).toHaveBeenCalled();
+		});
+
+		it("should throw a CustomError if query fails", async () => {
+			const error = new CustomError(
+				ErrorCatalog.ERROR.GOAL.REPOSITORY.GOAL_FIND_FAILED
+			);
+			mockClient.query.mockRejectedValue(error);
+
+			await expect(repository.findById("goal-id")).rejects.toMatchObject(
+				error
+			);
+			expect(mockClient.release).toHaveBeenCalled();
+		});
+	});
+
+	describe("update", () => {
+		it("should update a goal successfully", async () => {
+			const goal = new Goal(
+				{ title: "New Title", description: "New Description" },
+				"goal-id",
+				new Date("2023-01-01T00:00:00.000Z"),
+				new Date("2023-01-02T00:00:00.000Z")
+			);
+			mockClient.query
+				.mockResolvedValueOnce({}) // Update query
+				.mockResolvedValueOnce({ rows: [{ count: "1" }] }); // Count query
+
+			await repository.update(goal);
+
+			expect(mockClient.query).toHaveBeenNthCalledWith(
+				1,
+				"UPDATE goals SET title = $1, description = $2, updated_at = $3 WHERE id = $4",
+				[goal.title, goal.description, goal.updatedAt, goal.id]
+			);
+			expect(mockClient.query).toHaveBeenNthCalledWith(
+				2,
+				"SELECT COUNT(*) FROM goals WHERE id = $1",
+				[goal.id]
+			);
+			expect(mockClient.release).toHaveBeenCalled();
+		});
+
+		it("should throw a CustomError if update query fails", async () => {
+			const goal = new Goal(
+				{ title: "New Title", description: "New Description" },
+				"goal-id",
+				new Date("2023-01-01T00:00:00.000Z"),
+				new Date("2023-01-02T00:00:00.000Z")
+			);
+			const error = new CustomError(
+				ErrorCatalog.ERROR.GOAL.REPOSITORY.GOAL_UPDATE_FAILED
+			);
+			mockClient.query.mockRejectedValue(error);
+
+			await expect(repository.update(goal)).rejects.toMatchObject(error);
+			expect(mockClient.release).toHaveBeenCalled();
+		});
+
+		it("should throw a CustomError if goal not found", async () => {
+			const goal = new Goal(
+				{ title: "New Title", description: "New Description" },
+				"goal-id",
+				new Date("2023-01-01T00:00:00.000Z"),
+				new Date("2023-01-02T00:00:00.000Z")
+			);
+			mockClient.query
+				.mockResolvedValueOnce({}) // Update query
+				.mockResolvedValueOnce({ rows: [{ count: "0" }] }); // Count returns 0
+
+			const error = new CustomError(
+				ErrorCatalog.ERROR.GOAL.REPOSITORY.GOAL_UPDATE_FAILED
+			);
+
+			await expect(repository.update(goal)).rejects.toMatchObject(error);
+			expect(mockClient.release).toHaveBeenCalled();
+		});
+	});
 });

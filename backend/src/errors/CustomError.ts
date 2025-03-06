@@ -251,6 +251,16 @@ class ErrorCatalog {
 					errorName: "GOAL_COUNT_FAILED",
 					statusCode: 500,
 				},
+				GOAL_FIND_FAILED: {
+					message: "Failed to find goal",
+					errorName: "GOAL_FIND_FAILED",
+					statusCode: 500,
+				},
+				GOAL_UPDATE_FAILED: {
+					message: "Failed to update goal",
+					errorName: "GOAL_UPDATE_FAILED",
+					statusCode: 500,
+				},
 			},
 			SERVICE: {
 				GOAL_LIMIT_REACHED: {
