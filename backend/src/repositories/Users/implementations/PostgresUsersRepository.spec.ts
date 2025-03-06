@@ -6,7 +6,7 @@ import { CustomError, ErrorCatalog } from "../../../errors/CustomError";
 const mockQuery = jest.fn();
 const mockRelease = jest.fn();
 
-jest.mock("../../config/db", () => ({
+jest.mock("../../../config/db.ts", () => ({
 	pool: {
 		connect: jest.fn(() => ({
 			query: mockQuery,

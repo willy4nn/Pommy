@@ -18,17 +18,15 @@ describe("authMiddleware", () => {
 		mockRequest.cookies = {};
 		mockRequest.headers = {};
 
-		try {
-			authMiddleware(mockRequest, mockResponse, nextFunction);
-		} catch (error) {
-			expect(error).toBeInstanceOf(CustomError);
-			expect((error as CustomError).errorName).toEqual(
-				ErrorCatalog.ERROR.USER.AUTHENTICATION.NO_TOKEN_PROVIDED
-					.errorName
-			);
-		}
-
-		// Ensures nextFunction is not called when there is no token
+		expect(() =>
+			authMiddleware(mockRequest, mockResponse, nextFunction)
+		).toThrow(
+			expect.objectContaining({
+				errorName:
+					ErrorCatalog.ERROR.USER.AUTHENTICATION.NO_TOKEN_PROVIDED
+						.errorName,
+			})
+		);
 		expect(nextFunction).not.toHaveBeenCalled();
 	});
 
@@ -38,10 +36,9 @@ describe("authMiddleware", () => {
 
 		mockRequest.cookies = { token: mockToken };
 
-		authMiddleware(mockRequest, mockResponse, nextFunction);
-
-		// Ensures nextFunction is called with the correct error object
-		expect(nextFunction).toHaveBeenCalledWith(
+		expect(() =>
+			authMiddleware(mockRequest, mockResponse, nextFunction)
+		).toThrow(
 			expect.objectContaining({
 				errorName:
 					ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_TOKEN_PAYLOAD
@@ -54,35 +51,40 @@ describe("authMiddleware", () => {
 						.statusCode,
 			})
 		);
+		expect(nextFunction).not.toHaveBeenCalled();
 	});
 
-	it("should pass an error to next() when token verification fails", () => {
+	it("should throw INVALID_OR_EXPIRED_TOKEN error when token verification fails", () => {
 		const mockToken = "invalidToken";
-		const mockError = new Error("Invalid token");
+		const mockError = new CustomError(
+			ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_OR_EXPIRED_TOKEN
+		);
 		(jwt.verify as jest.Mock).mockImplementationOnce(() => {
 			throw mockError; // Simulates token verification failure
 		});
 
 		mockRequest.cookies = { token: mockToken };
 
-		authMiddleware(mockRequest, mockResponse, nextFunction);
-
-		// Ensures the error is passed to nextFunction
-		expect(nextFunction).toHaveBeenCalledWith(mockError);
+		expect(() =>
+			authMiddleware(mockRequest, mockResponse, nextFunction)
+		).toThrow(
+			expect.objectContaining({
+				errorName: mockError.errorName,
+			})
+		);
+		expect(nextFunction).not.toHaveBeenCalled();
 	});
 
 	it("should assign decoded token to req.user and call next() when token is valid", () => {
 		const mockToken = "validToken";
 		const decodedToken = { userId: "12345" };
-		(jwt.verify as jest.Mock).mockReturnValueOnce(decodedToken); // Simulates a valid decoded token
+		(jwt.verify as jest.Mock).mockReturnValueOnce(decodedToken); // Simulates a valid token
 
 		mockRequest.cookies = { token: mockToken };
 
 		authMiddleware(mockRequest, mockResponse, nextFunction);
 
-		// Ensures the decoded token is assigned to req.user
 		expect(mockRequest.user).toEqual(decodedToken);
-		// Ensures nextFunction is called without errors
 		expect(nextFunction).toHaveBeenCalled();
 	});
 });

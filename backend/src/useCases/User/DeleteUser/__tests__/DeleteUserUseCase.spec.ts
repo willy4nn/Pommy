@@ -4,7 +4,7 @@ import { CustomError, ErrorCatalog } from "../../../../errors/CustomError";
 import { v4 as uuidv4 } from "uuid";
 
 // Mocking the repository
-jest.mock("../../../../repositories/implementations/PostgresUsersRepository");
+jest.mock("../../../../repositories/Users/implementations/PostgresUsersRepository.ts");
 
 describe("DeleteUserUseCase (Unit Tests)", () => {
 	let deleteUserUseCase: DeleteUserUseCase;

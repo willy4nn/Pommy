@@ -6,7 +6,7 @@ import { CustomError, ErrorCatalog } from "../../../../errors/CustomError";
 
 // Mocking the repository
 jest.mock(
-	"../../../../repositories/implementations/PostgresUsersRepository.ts"
+	"../../../../repositories/Users/implementations/PostgresUsersRepository.ts"
 );
 jest.mock("bcrypt", () => ({
 	...jest.requireActual("bcrypt"),

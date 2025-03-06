@@ -13,48 +13,45 @@ export const authMiddleware = (
 		request.cookies.token ||
 		request.headers["authorization"]?.split(" ")[1];
 
+	// If no token is provided, throw an error
 	if (!token) {
-		return next(
-			new CustomError(
-				ErrorCatalog.ERROR.USER.AUTHENTICATION.NO_TOKEN_PROVIDED
-			)
+		throw new CustomError(
+			ErrorCatalog.ERROR.USER.AUTHENTICATION.NO_TOKEN_PROVIDED
 		);
 	}
 
 	try {
-		// Decodes the token
+		// Decode the token
 		const decoded = jwt.verify(token, JWT_SECRET) as DecodedToken;
 
-		// Checks if the token contains userId and assigns it to req.user
+		// Check if the token contains userId
 		if (!decoded.userId) {
 			throw new CustomError(
 				ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_TOKEN_PAYLOAD
 			);
 		}
 
-		request.user = decoded; // Assigns the decoded token to req.user
+		// Assign the decoded token to req.user
+		request.user = decoded;
 
+		// Continue to the next middleware
 		next();
 	} catch (err) {
-		// If the token is invalid, handles JWT errors
+		// If the token is invalid or expired, throw a custom error
 		if (err instanceof jwt.JsonWebTokenError) {
-			return next(
-				new CustomError(
-					ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_OR_EXPIRED_TOKEN
-				)
+			throw new CustomError(
+				ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_OR_EXPIRED_TOKEN
 			);
 		}
 
-		// If the token has expired, handles TokenExpiredError
+		// If the token has expired, throw a custom error
 		if (err instanceof jwt.TokenExpiredError) {
-			return next(
-				new CustomError(
-					ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_OR_EXPIRED_TOKEN
-				)
+			throw new CustomError(
+				ErrorCatalog.ERROR.USER.AUTHENTICATION.INVALID_OR_EXPIRED_TOKEN
 			);
 		}
 
-		// Passes any other error to the next error handler
-		next(err);
+		// Throw any other unexpected error
+		throw err;
 	}
 };

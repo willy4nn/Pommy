@@ -5,7 +5,7 @@ import { CustomError, ErrorCatalog } from "../../../../errors/CustomError";
 import { ApiResponse } from "../../../../helpers/ApiResponse";
 
 // Mock the repository and LoginUserUseCase
-jest.mock("../../../../repositories/IUsersRepository");
+jest.mock("../../../../repositories/Users/implementations/PostgresUsersRepository.ts");
 jest.mock("../LoginUserUseCase.ts");
 
 describe("Unit Tests for LoginUserController", () => {

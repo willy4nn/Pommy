@@ -6,7 +6,7 @@ import { User } from "../../../../entities/User/User";
 
 // Mocking the repository and bcrypt
 jest.mock(
-	"../../../../repositories/implementations/PostgresUsersRepository.ts"
+	"../../../../repositories/Users/implementations/PostgresUsersRepository.ts"
 );
 jest.mock("bcrypt", () => ({
 	...jest.requireActual("bcrypt"),
