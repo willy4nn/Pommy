@@ -28,4 +28,24 @@ export class PostgresGoalsRepository implements IGoalsRepository {
 			client.release(); // Release the client
 		}
 	}
+
+	// Method to count the number of goals for a specific user
+	async countByUserId(userId: string): Promise<number> {
+		const client = await pool.connect();
+		try {
+			const result = await client.query(
+				"SELECT COUNT(*) AS total_goals FROM goals WHERE user_id = $1",
+				[userId]
+			);
+
+			return parseInt(result.rows[0].total_goals, 10);
+		} catch (error) {
+			throw new CustomError(
+				ErrorCatalog.ERROR.GOAL.REPOSITORY.GOAL_COUNT_FAILED,
+				error.message
+			);
+		} finally {
+			client.release(); // Release the client
+		}
+	}
 }

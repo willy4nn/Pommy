@@ -89,4 +89,46 @@ describe("PostgresGoalsRepository - Unit", () => {
 			expect(mockClient.release).toHaveBeenCalled();
 		});
 	});
+
+	describe("countByUserId", () => {
+		it("should return the number of goals", async () => {
+			const userId = "user-id";
+			const totalGoals = 5;
+
+			mockClient.query.mockResolvedValue({
+				rows: [{ total_goals: totalGoals.toString() }],
+			});
+
+			const result = await repository.countByUserId(userId);
+
+			expect((pool as any).connect).toHaveBeenCalled();
+			expect(mockClient.query).toHaveBeenCalledWith(
+				"SELECT COUNT(*) AS total_goals FROM goals WHERE user_id = $1",
+				[userId]
+			);
+			expect(result).toBe(totalGoals);
+			expect(mockClient.release).toHaveBeenCalled();
+		});
+
+		it("should return an error if unable to fetch the number of goals", async () => {
+			const userId = "user-id";
+			const errorMessage = "Query failed";
+
+			mockClient.query.mockRejectedValue(new Error(errorMessage));
+
+			const error = new CustomError(
+				ErrorCatalog.ERROR.GOAL.REPOSITORY.GOAL_COUNT_FAILED,
+				errorMessage
+			);
+
+			await expect(
+				repository.countByUserId(userId)
+			).rejects.toMatchObject({
+				message: error.message,
+				statusCode: error.statusCode,
+			});
+
+			expect(mockClient.release).toHaveBeenCalled();
+		});
+	});
 });

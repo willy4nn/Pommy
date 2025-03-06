@@ -207,11 +207,57 @@ class ErrorCatalog {
 			},
 		},
 		GOAL: {
+			VALIDATION: {
+				USER_ID_REQUIRED: {
+					message: "User ID is required",
+					errorName: "USER_ID_REQUIRED",
+					statusCode: 400,
+				},
+				USER_ID_INVALID_FORMAT: {
+					message: "User ID must be a valid UUID",
+					errorName: "USER_ID_INVALID_FORMAT",
+					statusCode: 400,
+				},
+				TITLE_REQUIRED: {
+					message: "Title is required",
+					errorName: "TITLE_REQUIRED",
+					statusCode: 400,
+				},
+				INVALID_TITLE_LENGTH: {
+					message: "Title must be between 3 and 100 characters",
+					errorName: "INVALID_TITLE_LENGTH",
+					statusCode: 400,
+				},
+				DESCRIPTION_REQUIRED: {
+					message: "Description is required",
+					errorName: "DESCRIPTION_REQUIRED",
+					statusCode: 400,
+				},
+				INVALID_DESCRIPTION_LENGTH: {
+					message:
+						"Description must be between 10 and 500 characters",
+					errorName: "INVALID_DESCRIPTION_LENGTH",
+					statusCode: 400,
+				},
+			},
 			REPOSITORY: {
 				GOAL_SAVE_FAILED: {
 					message: "Failed to save goal",
 					errorName: "GOAL_SAVE_FAILED",
 					statusCode: 500,
+				},
+				GOAL_COUNT_FAILED: {
+					message: "Failed to count goals",
+					errorName: "GOAL_COUNT_FAILED",
+					statusCode: 500,
+				},
+			},
+			SERVICE: {
+				GOAL_LIMIT_REACHED: {
+					message:
+						"The user has reached the maximum number of goals allowed.",
+					errorName: "GOAL_LIMIT_REACHED",
+					statusCode: 400,
 				},
 			},
 		},
