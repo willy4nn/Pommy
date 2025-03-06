@@ -152,6 +152,7 @@ describe("PostgresGoalsRepository - Unit", () => {
 					{
 						title: row.title,
 						description: row.description,
+						user_id: row.user_id,
 					},
 					row.id,
 					row.created_at,
@@ -186,7 +187,11 @@ describe("PostgresGoalsRepository - Unit", () => {
 	describe("update", () => {
 		it("should update a goal successfully", async () => {
 			const goal = new Goal(
-				{ title: "New Title", description: "New Description" },
+				{
+					title: "New Title",
+					description: "New Description",
+					user_id: "user-id",
+				},
 				"goal-id",
 				new Date("2023-01-01T00:00:00.000Z"),
 				new Date("2023-01-02T00:00:00.000Z")
@@ -212,7 +217,11 @@ describe("PostgresGoalsRepository - Unit", () => {
 
 		it("should throw a CustomError if update query fails", async () => {
 			const goal = new Goal(
-				{ title: "New Title", description: "New Description" },
+				{
+					title: "New Title",
+					description: "New Description",
+					user_id: "user-id",
+				},
 				"goal-id",
 				new Date("2023-01-01T00:00:00.000Z"),
 				new Date("2023-01-02T00:00:00.000Z")
@@ -228,7 +237,11 @@ describe("PostgresGoalsRepository - Unit", () => {
 
 		it("should throw a CustomError if goal not found", async () => {
 			const goal = new Goal(
-				{ title: "New Title", description: "New Description" },
+				{
+					title: "New Title",
+					description: "New Description",
+					user_id: "user-id",
+				},
 				"goal-id",
 				new Date("2023-01-01T00:00:00.000Z"),
 				new Date("2023-01-02T00:00:00.000Z")

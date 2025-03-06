@@ -10,7 +10,7 @@ export class Goal {
 	public updatedAt: Date;
 
 	constructor(
-		props: Omit<Goal, "id" | "createdAt" | "updatedAt" | "user_id">,
+		props: Omit<Goal, "id" | "createdAt" | "updatedAt">,
 		id?: string,
 		createdAt?: Date,
 		updatedAt?: Date

@@ -269,6 +269,11 @@ class ErrorCatalog {
 					errorName: "GOAL_LIMIT_REACHED",
 					statusCode: 400,
 				},
+				GOAL_NOT_FOUND: {
+					message: "Goal not found.",
+					errorName: "GOAL_NOT_FOUND",
+					statusCode: 404,
+				},
 			},
 		},
 		SERVER: {

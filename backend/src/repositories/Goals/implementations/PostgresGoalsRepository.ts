@@ -48,6 +48,7 @@ export class PostgresGoalsRepository implements IGoalsRepository {
 				{
 					title: row.title,
 					description: row.description,
+					user_id: row.user_id,
 				},
 				row.id,
 				row.created_at,
