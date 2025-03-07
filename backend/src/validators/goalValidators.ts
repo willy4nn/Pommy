@@ -1,5 +1,21 @@
 import { CustomError, ErrorCatalog } from "../errors/CustomError";
 
+// Validates the goal ID
+function validateGoalId(goalId: string): void {
+	if (!goalId) {
+		throw new CustomError(
+			ErrorCatalog.ERROR.GOAL.VALIDATION.GOAL_ID_REQUIRED
+		);
+	}
+	const uuidRegex =
+		/^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
+	if (!uuidRegex.test(goalId)) {
+		throw new CustomError(
+			ErrorCatalog.ERROR.GOAL.VALIDATION.GOAL_ID_INVALID_FORMAT
+		);
+	}
+}
+
 // Validates the user ID associated with the goal
 function validateUserId(userId: string): void {
 	if (!userId) {
@@ -44,4 +60,4 @@ function validateDescription(description: string): void {
 	}
 }
 
-export { validateUserId, validateTitle, validateDescription };
+export { validateGoalId, validateUserId, validateTitle, validateDescription };

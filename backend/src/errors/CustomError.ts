@@ -218,6 +218,16 @@ class ErrorCatalog {
 					errorName: "USER_ID_INVALID_FORMAT",
 					statusCode: 400,
 				},
+				GOAL_ID_REQUIRED: {
+					message: "Goal ID is required",
+					errorName: "GOAL_ID_REQUIRED",
+					statusCode: 400,
+				},
+				GOAL_ID_INVALID_FORMAT: {
+					message: "Goal ID must be a valid UUID",
+					errorName: "GOAL_ID_INVALID_FORMAT",
+					statusCode: 400,
+				},
 				TITLE_REQUIRED: {
 					message: "Title is required",
 					errorName: "TITLE_REQUIRED",
