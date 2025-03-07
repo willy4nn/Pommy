@@ -7,6 +7,7 @@ import { authMiddleware } from "./middlewares/authMiddleware";
 import { deleteUserController } from "./useCases/User/DeleteUser";
 import { createGoalController } from "./useCases/Goal/CreateGoal";
 import { updateGoalController } from "./useCases/Goal/UpdateGoal";
+import { deleteGoalController } from "./useCases/Goal/DeleteGoal";
 
 const router = Router(); // Create a new instance of the router
 
@@ -43,6 +44,11 @@ router.post("/goals", authMiddleware, (request, response, next) => {
 // PUT route to update a goal
 router.put("/goals", authMiddleware, (request, response, next) => {
 	return updateGoalController.handle(request, response, next);
+});
+
+// DELETE route to delete a goal
+router.delete("/goals", authMiddleware, (request, response, next) => {
+	return deleteGoalController.handle(request, response, next);
 });
 
 export { router }; // Export the router for use in other modules
