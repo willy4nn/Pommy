@@ -271,6 +271,11 @@ class ErrorCatalog {
 					errorName: "GOAL_UPDATE_FAILED",
 					statusCode: 500,
 				},
+				GOAL_DELETE_FAILED: {
+					message: "Failed to delete goal",
+					errorName: "GOAL_DELETE_FAILED",
+					statusCode: 500,
+				},
 			},
 			SERVICE: {
 				GOAL_LIMIT_REACHED: {

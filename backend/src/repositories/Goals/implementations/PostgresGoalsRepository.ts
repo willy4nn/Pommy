@@ -112,4 +112,28 @@ export class PostgresGoalsRepository implements IGoalsRepository {
 			client.release();
 		}
 	}
+
+	// Method to delete a goal by id
+	async delete(id: string): Promise<void> {
+		const client = await pool.connect();
+		try {
+			const result = await client.query(
+				"DELETE FROM goals WHERE id = $1",
+				[id]
+			);
+
+			if (result.rowCount === 0) {
+				throw new CustomError(
+					ErrorCatalog.ERROR.GOAL.REPOSITORY.GOAL_FIND_FAILED
+				);
+			}
+		} catch (error) {
+			throw new CustomError(
+				ErrorCatalog.ERROR.GOAL.REPOSITORY.GOAL_DELETE_FAILED,
+				error.message
+			);
+		} finally {
+			client.release();
+		}
+	}
 }

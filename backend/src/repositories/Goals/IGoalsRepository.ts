@@ -12,4 +12,7 @@ export interface IGoalsRepository {
 
 	// Method to update a goal
 	update(goal: Goal): Promise<void>;
+
+	// Method to delete a goal
+	delete(id: string): Promise<void>;
 }

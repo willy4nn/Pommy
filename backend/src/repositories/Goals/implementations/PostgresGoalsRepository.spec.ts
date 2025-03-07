@@ -258,4 +258,52 @@ describe("PostgresGoalsRepository - Unit", () => {
 			expect(mockClient.release).toHaveBeenCalled();
 		});
 	});
+
+	describe("delete", () => {
+		it("should delete a goal successfully", async () => {
+			const goalId = "goal-id";
+
+			mockClient.query.mockResolvedValue({ rowCount: 1 });
+
+			await repository.delete(goalId);
+
+			expect(mockClient.query).toHaveBeenCalledWith(
+				"DELETE FROM goals WHERE id = $1",
+				[goalId]
+			);
+			expect(mockClient.release).toHaveBeenCalled();
+		});
+
+		it("should throw a CustomError if goal is not found", async () => {
+			const goalId = "goal-id";
+
+			mockClient.query.mockResolvedValue({ rowCount: 0 });
+
+			const error = new CustomError(
+				ErrorCatalog.ERROR.GOAL.REPOSITORY.GOAL_DELETE_FAILED,
+				"Goal not found"
+			);
+
+			await expect(repository.delete(goalId)).rejects.toMatchObject(
+				error
+			);
+			expect(mockClient.release).toHaveBeenCalled();
+		});
+
+		it("should throw a CustomError if delete query fails", async () => {
+			const goalId = "goal-id";
+			const errorMessage = "Query failed";
+			mockClient.query.mockRejectedValue(new Error(errorMessage));
+
+			const error = new CustomError(
+				ErrorCatalog.ERROR.GOAL.REPOSITORY.GOAL_DELETE_FAILED,
+				errorMessage
+			);
+
+			await expect(repository.delete(goalId)).rejects.toMatchObject(
+				error
+			);
+			expect(mockClient.release).toHaveBeenCalled();
+		});
+	});
 });
