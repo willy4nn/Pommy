@@ -266,6 +266,11 @@ class ErrorCatalog {
 					errorName: "GOAL_FIND_FAILED",
 					statusCode: 500,
 				},
+				GOAL_FIND_ALL_FAILED: {
+					message: "Failed to find all goals",
+					errorName: "GOAL_FIND_ALL_FAILED",
+					statusCode: 500,
+				},
 				GOAL_UPDATE_FAILED: {
 					message: "Failed to update goal",
 					errorName: "GOAL_UPDATE_FAILED",

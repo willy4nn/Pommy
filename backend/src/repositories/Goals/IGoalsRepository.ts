@@ -7,6 +7,9 @@ export interface IGoalsRepository {
 	// Method to find a goal by id
 	findById(id: string): Promise<Goal>;
 
+	// Method to find all goals for a specific user
+	findAllByUserId(userId: string): Promise<Goal[]>;
+
 	// Method to count the number of goals for a specific user
 	countByUserId(userId: string): Promise<number>;
 

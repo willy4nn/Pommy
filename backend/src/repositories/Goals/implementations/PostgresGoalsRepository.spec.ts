@@ -306,4 +306,67 @@ describe("PostgresGoalsRepository - Unit", () => {
 			expect(mockClient.release).toHaveBeenCalled();
 		});
 	});
+
+	describe("findAllByUserId", () => {
+		it("should return an array of goals for a valid user", async () => {
+			const userId = "user-id";
+			const rows = [
+				{
+					id: "goal-id-1",
+					user_id: userId,
+					title: "Test Goal 1",
+					description: "Test description 1",
+					created_at: new Date("2023-01-01T00:00:00.000Z"),
+					updated_at: new Date("2023-01-02T00:00:00.000Z"),
+				},
+				{
+					id: "goal-id-2",
+					user_id: userId,
+					title: "Test Goal 2",
+					description: "Test description 2",
+					created_at: new Date("2023-02-01T00:00:00.000Z"),
+					updated_at: new Date("2023-02-02T00:00:00.000Z"),
+				},
+			];
+
+			mockClient.query.mockResolvedValue({ rows });
+
+			const result = await repository.findAllByUserId(userId);
+
+			expect(result).toHaveLength(2);
+			result.forEach((goal, index) => {
+				expect(goal).toBeInstanceOf(Goal);
+				expect(goal.id).toBe(rows[index].id);
+				expect(goal.user_id).toBe(rows[index].user_id);
+				expect(goal.title).toBe(rows[index].title);
+				expect(goal.description).toBe(rows[index].description);
+				expect(goal.createdAt).toEqual(rows[index].created_at);
+				expect(goal.updatedAt).toEqual(rows[index].updated_at);
+			});
+			expect(mockClient.query).toHaveBeenCalledWith(
+				"SELECT * FROM goals WHERE user_id = $1",
+				[userId]
+			);
+			expect(mockClient.release).toHaveBeenCalled();
+		});
+
+		it("should throw a CustomError if query fails", async () => {
+			const userId = "user-id";
+			const errorMessage = "Query failed";
+			mockClient.query.mockRejectedValue(new Error(errorMessage));
+
+			const error = new CustomError(
+				ErrorCatalog.ERROR.GOAL.REPOSITORY.GOAL_FIND_ALL_FAILED,
+				errorMessage
+			);
+
+			await expect(
+				repository.findAllByUserId(userId)
+			).rejects.toMatchObject({
+				message: error.message,
+				statusCode: error.statusCode,
+			});
+			expect(mockClient.release).toHaveBeenCalled();
+		});
+	});
 });

@@ -136,4 +136,36 @@ export class PostgresGoalsRepository implements IGoalsRepository {
 			client.release();
 		}
 	}
+
+	// Method to find all goals by user id
+	async findAllByUserId(userId: string): Promise<Goal[]> {
+		const client = await pool.connect();
+		try {
+			const result = await client.query(
+				"SELECT * FROM goals WHERE user_id = $1",
+				[userId]
+			);
+
+			return result.rows.map(
+				(row) =>
+					new Goal(
+						{
+							title: row.title,
+							description: row.description,
+							user_id: row.user_id,
+						},
+						row.id,
+						row.created_at,
+						row.updated_at
+					)
+			);
+		} catch (error) {
+			throw new CustomError(
+				ErrorCatalog.ERROR.GOAL.REPOSITORY.GOAL_FIND_ALL_FAILED,
+				error.message
+			);
+		} finally {
+			client.release();
+		}
+	}
 }
